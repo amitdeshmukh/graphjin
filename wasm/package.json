@@ -1,15 +1,17 @@
 {
-  "name": "graphjin",
+  "name": "graphjin-js",
   "version": "3.1.4",
-  "description": "GraphJin CLI - Build APIs in 5 minutes with GraphQL",
-  "bin": {
-    "graphjin": "./bin/graphjin.js"
-  },
+  "description": "GraphJin Node.js library - GraphQL to SQL compiler",
+  "type": "module",
+  "main": "./js/graphjin.js",
   "files": [
-    "./bin"
+    "./config",
+    "./runtime",
+    "./graphjin.wasm",
+    "./js/*.js"
   ],
   "scripts": {
-    "postinstall": "node ./bin/install.js"
+    "postinstall": "node ./js/install.js"
   },
   "repository": {
     "type": "git",
@@ -20,10 +22,10 @@
     "sql",
     "database",
     "api",
-    "cli",
     "postgres",
     "mysql",
-    "mcp"
+    "wasm",
+    "webassembly"
   ],
   "author": "Vikram <https://twitter.com/dosco>",
   "license": "Apache-2.0",
@@ -32,6 +34,6 @@
   },
   "homepage": "https://graphjin.com",
   "dependencies": {
-    "tar": "^7.0.0"
+    "fs-extra": "^11.1.0"
   }
 }
