@@ -1352,3 +1352,47 @@ func TestIntroQueryDeterministic(t *testing.T) {
 		}
 	}
 }
+
+// TestCloneConfigIsolation verifies that engine init does not mutate the
+// caller's original Config. This is critical for config reuse: creating
+// multiple GraphJin instances from the same *Config must be safe.
+func TestCloneConfigIsolation(t *testing.T) {
+	original := &Config{
+		DBType:           "postgres",
+		DisableAllowList: true,
+		Tables: []Table{
+			{Name: "orders"},
+		},
+	}
+
+	// Snapshot before init
+	origTablesLen := len(original.Tables)
+	origDB := original.Tables[0].Database
+	origSchema := original.Tables[0].Schema
+
+	clone := original.clone()
+
+	// Mutate the clone the way init would
+	clone.NormalizeDatabases()
+	clone.Tables = append(clone.Tables, Table{
+		Name: "users", Schema: "public", Database: DefaultDBName,
+	})
+	clone.Tables[0].Schema = "public"
+
+	// Original must be untouched
+	if len(original.Tables) != origTablesLen {
+		t.Errorf("original.Tables length changed: got %d, want %d",
+			len(original.Tables), origTablesLen)
+	}
+	if original.Tables[0].Database != origDB {
+		t.Errorf("original.Tables[0].Database changed: got %q, want %q",
+			original.Tables[0].Database, origDB)
+	}
+	if original.Tables[0].Schema != origSchema {
+		t.Errorf("original.Tables[0].Schema changed: got %q, want %q",
+			original.Tables[0].Schema, origSchema)
+	}
+	if original.Databases != nil {
+		t.Errorf("original.Databases should still be nil, got %v", original.Databases)
+	}
+}
